@@ -1,0 +1,48 @@
+{% load static %}
+<!Doctype html>
+
+<html>
+    <head>
+        <title>Icas'Sino</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
+        <script type="text/javascript" src="{% static 'scriptcasino.js' %}"></script>
+    </head>
+<body>
+    
+    <header>
+        <div class="chip chip-left"></div>
+        <h1 class="header-title">ICASINO</h1>
+        <div class="chip chip-right"></div>
+    </header>
+    <div id="message">Mauvais input, veuillez reessayer</div>
+
+
+
+
+
+        <form id="loginForm" method="post" action="{% url 'authenticate_user' %}">
+            {% csrf_token %}
+            <div class="box">
+                <input type="text" name="identifiant" id="Identifiant" placeholder="Identifiant"><br>
+                <input type="password" name="motDePasse" id="motDePasse" placeholder="Mot de passe"><br>
+                <input type="submit" value="Connexion"><br>
+        
+                <!-- Display error message if it exists -->
+                {% if error_message %}
+                    <div class="error-message">{{ error_message }}</div>
+                {% endif %}
+        
+                <a href="/members/account">Créer un nouveau compte</a><br>
+
+            </div>
+        </form>
+
+
+
+    </div>
+    
+
+</body>
+
+
+</html>

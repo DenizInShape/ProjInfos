@@ -1,0 +1,708 @@
+{% load static %}
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial scale=1.0">
+    <title>Black Jack</title>
+</head>
+<body>
+    
+    <h2><span id="dealer-label" class="neon-text">Dealer :</span> <span id="dealer-sum"></span></h2>
+    <div id="dealer-cards">
+        <img id="hidden" src="/static/cards/BACK.png">
+       
+        <!-- ajout de base de donné -->
+    
+    
+    </div>
+
+
+    <h2><span id="you-label" class="neon-text">You :</span> <span id="your-sum"></span></h2>
+    <div id="your-cards"></div>
+    <br>
+    <button id="hit" class="neon-text">Hit</button>
+    <button id="stay" class="neon-text">Stay</button>
+    <button id="double" class="neon-text">Double</button>
+    <button id="home" onclick="redirectToLobby()">Home</button>
+    <p id="results" class="neon-text"></p>
+    <button id="restart" style="display: none;">Restart</button> <!-- Bouton Restart masqué par défaut -->
+    <div id="balance">Balance: 200</div>
+    <div id="bet-display">Bet: 0</div>
+    <div id="win-amount"></div>
+    <div id="modal" class="modal" style="top: 10%; left: 10%;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="neon-text2">Results</h2>  
+            <p id="balance-update" class="neon-text2"></p>
+            <button id="restart-modal">Restart</button>
+            <button id="home-modal" onclick="redirectToLobby()">Home</button>
+        </div>
+    </div>
+
+    <script>
+        function redirectToLobby() {
+            window.location.href = "/members/salon/{{ identifiant }}/{{ score }}";
+        }
+    </script>
+
+    
+
+    <div id="modal1" class="modal1" style="top: 50%; left: 50%;">
+        <div class="modal1-content">
+            <span class="close">&times;</span>
+            <h2>Place your bets</h2>  
+            <p id="balance"></p>
+            <!--<button id="bet-1"><img src="./cards/j-1.png" alt="1">
+            <button id="bet-5"><img src="./cards/j-5.jpg" alt="5"></button>-->
+            <button id="bet-10"></button>
+            <!--<button id="bet-25"><img src="./cards/j-25.jpg" alt="25"></button>-->
+            <button id="bet-50"></button>
+            <button id="bet-100"></button>
+            <button id="bet-500"></button>
+            <button id="bet-1000"></button>
+            <button id="bet-5000"></button>
+            <button id="deal">DEAL</button>
+        </div>
+    </div>
+    <style>
+        /* ... autres styles ... */
+
+        /* Nouveau style pour les textes en blanc avec effet néon doré */
+
+
+        .neon-text {
+            color: white;
+            text-shadow: 0 0 10px gold, 0 0 20px gold, 0 0 30px gold, 0 0 40px gold, 0 0 70px gold;
+        }
+        .neon-text2 {
+            color: white;
+            text-shadow: 0 0 10px rgb(255, 0, 0), 0 0 20px rgb(255, 0, 0), 0 0 30px rgb(255, 0, 0), 0 0 40px rgb(255, 0, 0), 0 0 70px rgb(255, 0, 0);
+        }
+
+        body { 
+    
+    font-family: Arial, Helvetica, sans-serif; text-align: center; 
+
+    background-image: url(/static/cards/aaa.png);
+    background-size:cover;
+    background-repeat: no-repeat;
+
+}
+
+#pile-cards img { height: 122.5px; width: 87.5; margin: 0.75px; position: absolute; top:0;right: 0; }
+
+#dealer-cards img { height: 122.5px; width: 87.5px; margin: 0.75px; }
+
+#your-cards img { height: 122.5px; width: 87.5px; margin: 0.75px; }
+
+#hit {
+    height: 70px;
+    width: 50px;
+    font-size: 20px;
+    background-color: transparent; /* Fond transparent */
+    border: none; /* Pas de cadre */
+}
+
+
+#stay {
+    height: 70px;
+    width: 60px;
+    font-size: 20px;
+    background-color: transparent; /* Fond transparent */
+    border: none; /* Pas de cadre */
+}
+
+
+
+#double {
+    height: 70px;
+    width: 80px;
+    font-size: 20px;
+    background-color: transparent; /* Fond transparent */
+    border: none; /* Pas de cadre */
+}
+
+#balance {
+    color: violet;
+    text-shadow: 0 0 10px violet, 0 0 20px violet, 0 0 30px violet, 0 0 40px violet, 0 0 70px violet;
+    /* Effet néon violet brillant */
+}
+
+#bet-display {
+    color: violet;
+    text-shadow: 0 0 10px violet, 0 0 20px violet, 0 0 30px violet, 0 0 40px violet, 0 0 70px violet;
+    /* Effet néon violet brillant */
+}
+
+#win-amount {
+    color: violet;
+    text-shadow: 0 0 10px violet, 0 0 20px violet, 0 0 30px violet, 0 0 40px violet, 0 0 70px violet;
+    /* Effet néon violet brillant */
+}
+
+.animate-card {
+    transition: all 1s ease-in-out; /* Transition pour une animation fluide */
+}
+
+
+.modal {
+    background-image: url(/static/cards/backmodal1.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 10%; /* Position en haut de l'écran */
+    left: 10%; /* Position à gauche de l'écran */
+    width: 20%; /* Largeur de la fenêtre modale */
+    height: auto; /* Hauteur automatique */
+    background-color: #fff; /* Couleur de fond */
+    border: 1px solid #000; /* Bordure */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Ombre */
+    /* opacity: 1; Opacité */
+}
+.modal-content {
+    padding: 20px; /* Espacement interne */
+    text-align: center; /* Alignement du contenu */
+}
+
+.modal1 {
+    background-image: url(/static/cards/backmodal1.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    transform: translate(-50%, -70%); /* Centre la fenêtre modale */
+    width: 70%; /* Largeur de la fenêtre modale - ajustée à 80% de la largeur de l'écran */
+    height: 65%; /* Hauteur de la fenêtre modale - ajustée à 80% de la hauteur de l'écran */
+    overflow: auto; /* Ajout de défilement si nécessaire */
+    background-color: rgba(255, 255, 255, 0.9); /* Couleur de fond avec transparence */
+    border: 1px solid #000; /* Bordure */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Ombre */
+}
+
+
+.modal1-content img {
+    height: 80px; /* Ajuste la hauteur des images des jetons pour correspondre à celle des boutons */
+    width: 80px; /* Ajuste la largeur des images des jetons pour correspondre à celle des boutons */
+    margin: 5px;
+}
+
+
+#bet-10,
+#bet-50,
+#bet-100,
+#bet-500,
+#bet-1000,
+#bet-5000 {
+    border-radius: 50%;
+    height: 80px;
+    width: 80px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: inline-block; /* Permettre l'affichage en ligne pour centrer */
+    margin: 10px; /* Ajoute un espace entre les boutons */
+}
+
+
+#bet-10 {
+    background-image: url("/static/cards/j-10.jpg");
+}
+
+#bet-50 {
+    background-image: url("/static/cards/j-50.jpg");
+}
+
+#bet-100 {
+    background-image: url("/static/cards/j-100.jpg");
+}
+
+#bet-500 {
+    background-image: url("/static/cards/j-500.jpg");
+}
+
+#bet-1000 {
+    background-image: url("/static/cards/j-1000.jpg");
+}
+
+#bet-5000 {
+    background-image: url("/static/cards/j-5000.jpg");
+}
+
+#deal {
+    height: 70px;
+    width: 60px;
+    font-size: 20px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: transparent; /* Fond transparent */
+    border: none; /* Pas de cadre */
+    color: rgb(244, 234, 234); /* Texte rouge */
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.8), 0 0 70px rgba(255, 0, 0, 0.8); /* Effet néon */
+}
+
+
+/* Effet de surbrillance au survol */
+#deal:hover,
+#bet-10:hover,
+#bet-50:hover,
+#bet-100:hover,
+#bet-500:hover,
+#bet-1000:hover,
+#bet-5000:hover {
+    box-shadow: 0 0 10px aqua; /* Surbrillance bleu turquoise */
+    border-color: transparent; /* Bordure transparente au survol */
+}
+
+#deal:hover,
+#stay:hover,
+#home:hover,
+#restart-modal:hover,
+#home-modal:hover{
+    box-shadow: 0 0 10px rgb(255, 0, 0); /* Surbrillance rouge */
+    border-color: transparent; /* Bordure transparente au survol */
+}
+
+#hit:hover{
+    box-shadow: 0 0 10px rgba(89, 255, 0, 0.757); /* Surbrillance rouge */
+    border-color: transparent; /* Bordure transparente au survol */
+}
+
+#double:hover{
+    box-shadow: 0 0 10px rgb(251, 255, 0); /* Surbrillance rouge */
+    border-color: transparent; /* Bordure transparente au survol */
+}
+
+/* Pour le texte "Place your bets" dans la fenêtre modal1 */
+.modal1-content::before {
+    content: "Place your bets";
+    position: absolute;
+    top:  10%; /* Déplace le texte à la moitié de la fenêtre modale verticalement */
+    left: 50%; /* Centre le texte horizontalement */
+    transform: translate(-50%, -50%); /* Ajuste le positionnement pour le centrer */
+    color: aqua; /* Couleur du texte */
+    font-size: 24px; /* Taille de police plus grande */
+    z-index: 1; /* Z-index pour la superposition */
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.8), 0 0 70px rgba(255, 0, 0, 0.8); /* Effet de néon */
+    animation: neon 1.5s ease-in-out infinite alternate; /* Animation pour l'effet de néon */
+}
+
+/* Animation de l'effet de néon */
+@keyframes neon {
+    0% {
+        color: red; /* Changement de couleur à rouge */
+        text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.8), 0 0 40px rgba(255, 0, 0, 0.8), 0 0 70px rgba(255, 0, 0, 0.8); /* Effet de néon */
+    }
+    100% {
+        color: aqua; /* Retour à la couleur d'origine */
+        text-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.8), 0 0 40px rgba(0, 255, 255, 0.8), 0 0 70px rgba(0, 255, 255, 0.8); /* Effet de néon */
+    }
+}
+
+
+#home {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    height: 40px;
+    width: 40px;
+    background-image: url(/static/lobby/maison.png); /* Remplacez le chemin par le chemin réel de votre image */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center; /* Centre l'image de fond */
+    background-color: white;
+    border: none;
+    text-indent: -9999px; /* Masque le texte du bouton */
+    overflow: hidden;
+}
+
+
+  </style>
+
+
+
+
+
+  <script>
+        let dealerSum = 0;
+let yourSum = 0;
+let dealerAceCount = 0;
+let yourAceCount = 0; 
+let hidden;
+let dealerHiddenCard;
+let deck;
+let canHit = true; //allows the player (you) to draw while yourSum <= 21
+let balance = '{{ score }}';
+let betAmount = 0;
+let hasDoubled = false;
+
+
+window.onload = function() {
+    buildDeck();
+    shuffleDeck();
+    startGame();
+    updateBalance();
+    const betButtons = document.querySelectorAll('.bet-button');
+    betButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+            const betValue = parseInt(button.textContent);
+            placeBet(betValue);
+        });
+    });
+    //document.getElementById("bet-1").addEventListener("click", function() {
+     //   placeBet(1);
+    //});
+    //document.getElementById("bet-5").addEventListener("click", function() {
+       // placeBet(5);
+    //});
+    document.getElementById("bet-10").addEventListener("click", function() {
+        placeBet(10);
+    });
+    //document.getElementById("bet-25").addEventListener("click", function() {
+       // placeBet(25);
+    //});
+    document.getElementById("bet-50").addEventListener("click", function() {
+        placeBet(50);
+    });
+    document.getElementById("bet-100").addEventListener("click", function() {
+        placeBet(100);
+    });
+    document.getElementById("bet-500").addEventListener("click", function() {
+        placeBet(500);
+    });
+    document.getElementById("bet-1000").addEventListener("click", function() {
+        placeBet(1000);
+    });
+    document.getElementById("bet-5000").addEventListener("click", function() {
+        placeBet(5000);
+    });
+
+    document.getElementById("double").addEventListener("click", doubleDown);
+
+     // Affichage de la fenêtre modal1 au début
+     let modal1 = document.getElementById("modal1");
+     modal1.style.display = "block";
+     
+     // Événement pour fermer la fenêtre modal1 lorsqu'une somme est misée et DEAL est pressé
+     document.getElementById("deal").addEventListener("click", function() {
+         modal1.style.display = "none";
+     });
+}
+
+
+function updateBalance() {
+    document.getElementById("balance").innerText = "Balance: " + balance;
+}
+
+function placeBet(amount) {
+    if (balance >= amount) {
+        betAmount += amount;
+        balance -= amount;
+        // Gérer l'affichage de la mise et du solde
+        document.getElementById("bet-display").innerText = "Bet: " + betAmount;
+        updateBalance();
+    } else {
+        alert("Not enough balance!");
+    }
+}
+
+function doubleDown() {
+    if (!hasDoubled) {
+        if (balance >= betAmount) {
+            betAmount *= 2;
+            balance -= betAmount / 2;
+            // Gérer l'affichage de la mise doublée et du solde
+            document.getElementById("bet-display").innerText = "Bet: " + betAmount;
+            updateBalance();
+            hit();
+            hasDoubled = true;
+        } else {
+            alert("Not enough balance to double!");
+        }
+    }
+}
+
+
+
+function buildDeck() {
+    let values = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+    let types = ["C", "D", "H", "S"];
+    deck = [];
+
+    for (let i = 0; i < types.length; i++) {
+        for (let j = 0; j < values.length; j++) {
+            deck.push(values[j] + "-" + types[i]); //A-C -> K-C, A-D -> K-D
+        }
+    }
+    // console.log(deck);
+}
+
+function shuffleDeck() {
+    for (let i = 0; i < deck.length; i++) {
+        let j = Math.floor(Math.random() * deck.length); // (0-1) * 52 => (0-51.9999)
+        let temp = deck[i];
+        deck[i] = deck[j];
+        deck[j] = temp;
+    }
+    console.log(deck);
+}
+
+
+
+function startGame() {
+    hidden = deck.pop();
+    dealerSum += getValue(hidden);
+    dealerAceCount += checkAce(hidden);
+    dealerHiddenCard = hidden;
+    // console.log(hidden);
+    // console.log(dealerSum);
+
+        //<img src="./cards/4-C.png">
+        let cardImg = document.createElement("img");
+        let card = deck.pop();
+        cardImg.src = "/static/cards/" + card + ".png";
+        dealerSum += getValue(card);
+        dealerAceCount += checkAce(card);
+        document.getElementById("dealer-cards").append(cardImg);
+
+    console.log(dealerSum);
+
+    for (let i = 0; i < 2; i++) {
+        let cardImg = document.createElement("img");
+        let card = deck.pop();
+        cardImg.src = "/static/cards/" + card + ".png";
+        yourSum += getValue(card);
+        yourAceCount += checkAce(card);
+        document.getElementById("your-cards").append(cardImg);
+    }
+ 
+    console.log(yourSum);
+    document.getElementById("hit").addEventListener("click", hit);
+    document.getElementById("stay").addEventListener("click", stay);
+    document.getElementById("restart").addEventListener("click", Restart);
+     // Réinitialise la mise avant de démarrer la partie
+     betAmount = 0;
+     document.getElementById("bet-display").innerText = "Bet: " + betAmount;
+     updateBalance();
+
+}
+
+function positionCard(cardImg, index) {
+    const cardWidth = 87.5;
+    const margin = 10; // Espace entre les cartes
+    const leftPosition = index * (cardWidth + margin); // Calcule la position horizontale
+
+    cardImg.style.position = 'absolute';
+    cardImg.style.top = '50%';
+    cardImg.style.left = leftPosition + 'px'; // Positionne la carte horizontalement
+
+    // Ajoute la classe pour l'animation de transition
+    cardImg.classList.add('animate-card');
+    cardImg.style.transition = 'left 0.5s ease-in-out'; // Animation de transition pour la position
+
+}
+
+function hit() {
+    if (!canHit) {
+        return;
+    }
+
+    let cardImg = document.createElement("img");
+    let card = deck.pop();
+    cardImg.src = "/static/cards/" + card + ".png";
+    yourSum += getValue(card);
+    yourAceCount += checkAce(card);
+
+    document.getElementById("your-cards").appendChild(cardImg);
+
+    
+    // Positionnement de la première carte à gauche
+    if (document.getElementById("your-cards").childElementCount === 1) {
+        cardImg.style.position = 'absolute';
+        cardImg.style.top = '50%';
+        cardImg.style.left = '10%'; // Positionner la première carte à gauche (10%)
+        cardImg.style.transform = 'translate(-50%, -50%)'; // Centrer la carte
+        cardImg.classList.add('animate-card'); // Ajout de la classe d'animation
+    }
+    // Positionnement de la deuxième carte à droite
+    else if (document.getElementById("your-cards").childElementCount === 2) {
+        cardImg.style.position = 'absolute';
+        cardImg.style.top = '50%';
+        cardImg.style.right = '10%'; // Positionner la deuxième carte à droite (10%)
+        cardImg.style.transform = 'translate(50%, -50%)'; // Centrer la carte
+        cardImg.classList.add('animate-card'); // Ajout de la classe d'animation
+    }
+
+    if (reduceAce(yourSum, yourAceCount) > 21) {
+        canHit = false;
+    }
+}
+
+function stay() {
+    dealerSum = reduceAce(dealerSum, dealerAceCount);
+    yourSum = reduceAce(yourSum, yourAceCount);
+    
+    let message = "";
+    let wonAmount = 0;
+
+    while (dealerSum < 17) {
+        let cardImg = document.createElement("img");
+        let card = deck.pop();
+        cardImg.src = "/static/cards/" + card + ".png";
+        dealerSum += getValue(card);
+        dealerAceCount += checkAce(card);
+        document.getElementById("dealer-cards").append(cardImg);
+    }
+
+    if (yourSum > 21) {
+        message = "You Lose!";
+    }
+    else if (dealerSum > 21) {
+        message = "You win!";
+        wonAmount = betAmount * 2; // Double de la mise gagnée
+    }
+    // both you and dealer <= 21
+    else if (yourSum == dealerSum) {
+        message = "Tie!";
+        wonAmount = betAmount; // Remise de la mise dans le solde
+    }
+    else if (yourSum > dealerSum) {
+        message = "You Win!";
+        wonAmount = betAmount * 2; // Double de la mise gagnée
+    }
+    else if (yourSum < dealerSum) {
+        message = "You Lose!";
+    }
+
+    document.getElementById("dealer-sum").innerText = dealerSum;
+    document.getElementById("your-sum").innerText = yourSum;
+    document.getElementById("results").innerText = message;
+    revealHiddenCard();
+
+    // Mise à jour du solde en fonction du gain/remise
+    balance += wonAmount;
+    betAmount = 0;
+    // Gérer l'affichage de la mise et du solde après la partie
+    document.getElementById("bet-display").innerText = "Bet: " + betAmount;
+    updateBalance();
+
+    // Affichage de la fenêtre modale en haut à gauche
+    let modal = document.getElementById("modal");
+    let winAmountDisplay = document.getElementById("win-amount");
+    let balanceUpdate = document.getElementById("balance-update");
+
+    winAmountDisplay.innerText = "You won: " + wonAmount; // Affichage du montant gagné
+    balanceUpdate.innerText = "New Balance: " + balance;
+
+    modal.style.display = "block";
+
+    // Bouton pour redémarrer le jeu depuis la fenêtre modale
+    document.getElementById("restart-modal").addEventListener("click", function () {
+        modal.style.display = "none"; // Masquer la fenêtre modale
+        Restart(); // Redémarrer le jeu
+    });
+
+    // Gestion de la fermeture de la fenêtre modale
+    let closeBtn = document.getElementsByClassName("close")[0];
+    closeBtn.onclick = function () {
+        modal.style.display = "none"; // Masquer la fenêtre modale
+    };
+}
+
+function revealHiddenCard() {
+    // Révéler la carte face cachée du dealer
+    let dealerHiddenImg = document.getElementById("hidden");
+    dealerHiddenImg.src = "/static/cards/" + dealerHiddenCard + ".png";
+}
+
+   
+function getValue(card) {
+    let data = card.split("-"); // "4-C" -> ["4", "C"]
+    let value = data[0];
+
+    if (isNaN(value)) { //A J Q K
+        if (value == "A") {
+            return 11;
+        }
+        return 10;
+    }
+    return parseInt(value);
+}
+
+function checkAce(card) {
+    if (card[0] == "A") {
+        return 1;
+    }
+    return 0;
+}
+
+function reduceAce(playerSum, playerAceCount) {
+    while (playerSum > 21 && playerAceCount > 0) {
+        playerSum -= 10;
+        playerAceCount -= 1;
+    }
+    return playerSum;
+}
+
+function resetDealerHiddenCard() {
+    let hiddenCardImg = document.getElementById("hidden");
+    hiddenCardImg.src = "/static/cards/BACK.png";
+}
+
+document.getElementById("dealer-sum").classList.add("neon-text");
+document.getElementById("your-sum").classList.add("neon-text");
+
+function Restart() {
+    // Return bet amount to balance
+    balance += betAmount;
+    betAmount = 0;
+    document.getElementById("bet-display").innerText = "Bet: " + betAmount;
+    updateBalance();
+
+    // Reset game values
+    dealerSum = 0;
+    yourSum = 0;
+    dealerAceCount = 0;
+    yourAceCount = 0;
+    canHit = true;
+    hasDoubled = false;
+    dealerHiddenCard = undefined;
+    hidden = undefined;
+
+    // Reset the deck and UI elements
+    deck = [];
+    document.getElementById("dealer-cards").innerHTML = '<img id="hidden" src="/static/cards/BACK.png">';
+    document.getElementById("your-cards").innerHTML = "";
+
+    // Hide and reset game elements
+    document.getElementById("hit").style.display = "inline-block";
+    document.getElementById("stay").style.display = "inline-block";
+    document.getElementById("restart").style.display = "none";
+    document.getElementById("dealer-sum").innerText = "";
+    document.getElementById("your-sum").innerText = "";
+    document.getElementById("results").innerText = "";
+
+    // Reset the dealer hidden card
+    resetDealerHiddenCard();
+
+    // Restart the game
+    buildDeck();
+    shuffleDeck();
+    startGame();
+
+    // Show modal1 again after restarting the game
+    let modal1 = document.getElementById("modal1");
+    modal1.style.display = "block";
+}
+
+
+
+  </script>
+</body>
+</html>
+
+
+

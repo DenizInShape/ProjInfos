@@ -1,0 +1,35 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icas'Sino</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'account.css' %}">
+    <script type="text/javascript" src="{% static 'scriptaccount.js' %}"></script>
+    
+</head>
+<body>
+    <header>
+        <div class="chip chip-left"></div>
+        <h1 class="header-title">Nouveau compte </h1>
+        <div class="chip chip-right"></div>
+    </header>
+
+    <div id="message"></div>
+
+    <div class="box">
+        <form id="registrationForm">
+            {% csrf_token %}
+            <input type="text" id="Identifiant" placeholder="Nouveau Identifiant"><br>
+            <input type="password" id="motDePasse" placeholder="Nouveau Mot de passe"><br>
+            <input type="button" value="Create" onclick="registerUser()"><br>
+
+            <p><a href="{% url 'main' %}">Go back to connexion</a></p>
+
+        
+        </form>
+    </div>
+
+    <div id="message"></div>
+</body>
+</html>
